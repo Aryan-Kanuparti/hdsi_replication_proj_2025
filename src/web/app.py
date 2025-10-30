@@ -47,6 +47,12 @@ EXAMPLE_QUESTIONS = [
     "Which approved drugs target specific proteins?",
     "Which genes are linked to multiple disease categories?",
     "What proteins have causal associations with diseases?",
+    # Statistical analysis questions
+    "How many diseases are in each category?",
+    "Count the number of proteins each gene encodes",
+    "What's the distribution of drug approval statuses?",
+    "Show me the top 10 most targeted proteins",
+    "How many treatments exist per disease?",
 ]
 
 QUERY_EXAMPLES = {
@@ -217,6 +223,11 @@ def display_learning_workflow_steps():
             "protein_function",
             "Questions about proteins and functions",
             "What proteins does TP53 encode?",
+        ),
+        (
+            "statistical_analysis",
+            "Counting and aggregation queries",
+            "How many diseases are in each category?",
         ),
         ("general_db", "Database exploration queries", "Show me all available genes"),
         ("general_knowledge", "Biomedical concept questions", "What is hypertension?"),

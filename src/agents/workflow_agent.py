@@ -150,6 +150,7 @@ class WorkflowAgent:
 - gene_disease: genes and diseases
 - drug_treatment: drugs and treatments
 - protein_function: proteins and functions
+- statistical_analysis: counting, aggregating, or analyzing distributions
 - general_db: database exploration
 - general_knowledge: biomedical concepts
 
@@ -188,7 +189,7 @@ Respond with just the type."""
         # Skip entity extraction for questions that don't need
         # database-specific entities
         question_type = state.get("question_type")
-        if question_type in ["general_db", "general_knowledge"]:
+        if question_type in ["general_db", "general_knowledge", "statistical_analysis"]:
             # General questions don't need specific entity extraction
             state["entities"] = []
             return state
@@ -264,6 +265,44 @@ Return a JSON list: ["term1", "term2"] or []"""
             # Skip database query for conceptual questions that don't need data lookup
             state["cypher_query"] = None
             return state
+        # Statistical analysis questions need aggregation queries
+        if question_type == "statistical_analysis":
+            # Build aggregation-focused prompt with COUNT, AVG, SUM capabilities
+            stat_prompt = f"""Create a Cypher aggregation query for this analytical question:
+
+        Question: {state['user_question']}
+
+        Database Schema:
+        Nodes: {', '.join(self.schema['node_labels'])}
+        Relationships: {', '.join(self.schema['relationship_types'])}
+
+        Available properties to group by or aggregate:
+        {json.dumps(self.schema['node_properties'], indent=2)}
+
+        Available relationship properties:
+        {json.dumps(self.schema['relationship_properties'], indent=2)}
+
+        AGGREGATION PATTERNS:
+        1. COUNT groups: MATCH (n:Label) RETURN n.property, count(*) as count ORDER BY count DESC
+        2. Distribution: MATCH (n)-[r:REL]->(m) RETURN type(r), count(*) as count
+        3. Category stats: MATCH (n:Label) WHERE n.category IS NOT NULL RETURN n.category, count(*) as total
+        4. Average/Sum: MATCH (n:Node) RETURN avg(n.numeric_property), sum(n.numeric_property)
+        5. Top N: Use ORDER BY count DESC LIMIT 10
+
+        Return ONLY the Cypher query. Focus on COUNT, GROUP BY (via RETURN), and ORDER BY."""
+
+            cypher_query = self._get_llm_response(stat_prompt, max_tokens=200)
+            
+            # Clean up markdown formatting
+            if cypher_query.startswith("```"):
+                cypher_query = "\n".join(
+                    line for line in cypher_query.split("\n")
+                    if not line.startswith("```") and not line.startswith("cypher")
+                ).strip()
+            
+            state["cypher_query"] = cypher_query
+            return state
+
 
         # Build dynamic relationship guide from actual database schema
         # This replaces hardcoded relationship patterns with discovered relationships
@@ -364,7 +403,30 @@ Provide a clear, informative answer about biomedical concepts.""",
                 max_tokens=300,  # Allow more tokens for explanatory content
             )
             return state
+        # Statistical analysis questions need formatted aggregation results
+        if question_type == "statistical_analysis":
+            results = state.get("results", [])
+            if not results:
+                state["final_answer"] = "No statistical data found for that query."
+                return state
+            
+            # Format aggregation results as a clear summary
+            state["final_answer"] = self._get_llm_response(
+                f"""Format these statistical results into a clear, readable summary:
 
+        Question: {state['user_question']}
+        Results: {json.dumps(results[:10], indent=2)}
+        Total rows: {len(results)}
+
+        Create a concise summary highlighting:
+        - Key statistics (totals, averages, top results)
+        - Notable patterns or distributions
+        - Top 5-10 results if applicable
+
+        Use bullet points and be specific with numbers.""",
+                max_tokens=300,
+            )
+            return state
         # Handle database-based answers using query results
         results = state.get("results", [])
         if not results:
@@ -374,6 +436,7 @@ Provide a clear, informative answer about biomedical concepts.""",
                 "genes, diseases, or drugs in our database."
             )
             return state
+        
 
         # Convert raw database results into natural language using LLM
         state["final_answer"] = self._get_llm_response(
