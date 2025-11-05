@@ -53,6 +53,11 @@ EXAMPLE_QUESTIONS = [
     "What's the distribution of drug approval statuses?",
     "Show me the top 10 most targeted proteins",
     "How many treatments exist per disease?",
+    # Comparative analysis questions
+    "Compare TP53 and BRCA1 gene disease associations",
+    "Compare cardiovascular vs oncological disease treatment coverage",
+    "Which has more protein isoforms: TP73 or TP63?",
+    "Compare high efficacy vs moderate efficacy treatment counts",
 ]
 
 QUERY_EXAMPLES = {
@@ -228,6 +233,11 @@ def display_learning_workflow_steps():
             "statistical_analysis",
             "Counting and aggregation queries",
             "How many diseases are in each category?",
+        ),
+        (
+            "comparative_analysis",
+            "Side-by-side entity comparisons",
+            "Compare TP53 vs BRCA1 disease associations",
         ),
         ("general_db", "Database exploration queries", "Show me all available genes"),
         ("general_knowledge", "Biomedical concept questions", "What is hypertension?"),

@@ -151,6 +151,7 @@ class WorkflowAgent:
 - drug_treatment: drugs and treatments
 - protein_function: proteins and functions
 - statistical_analysis: counting, aggregating, or analyzing distributions
+- comparative_analysis: comparing two or more entities side-by-side
 - general_db: database exploration
 - general_knowledge: biomedical concepts
 
@@ -292,17 +293,74 @@ Return a JSON list: ["term1", "term2"] or []"""
         Return ONLY the Cypher query. Focus on COUNT, GROUP BY (via RETURN), and ORDER BY."""
 
             cypher_query = self._get_llm_response(stat_prompt, max_tokens=200)
-            
+
             # Clean up markdown formatting
             if cypher_query.startswith("```"):
                 cypher_query = "\n".join(
-                    line for line in cypher_query.split("\n")
+                    line
+                    for line in cypher_query.split("\n")
                     if not line.startswith("```") and not line.startswith("cypher")
                 ).strip()
-            
+
             state["cypher_query"] = cypher_query
             return state
+        # Comparative analysis questions need side-by-side comparison queries
+        if question_type == "comparative_analysis":
+            entities = state.get("entities", [])
 
+            # Build comparison-focused prompt
+            comparison_prompt = f"""Create a Cypher query that compares entities side-by-side:
+
+        Question: {state['user_question']}
+        Entities to compare: {entities}
+
+        Database Schema:
+        Nodes: {', '.join(self.schema['node_labels'])}
+        Relationships: {', '.join(self.schema['relationship_types'])}
+
+        COMPARISON QUERY PATTERNS:
+
+        1. Compare counts for two specific entities:
+        MATCH (e1:Gene {{gene_name: 'TP53'}})-[:ENCODES]->(p1:Protein)
+        WITH count(p1) as count1, 'TP53' as entity1
+        MATCH (e2:Gene {{gene_name: 'BRCA1'}})-[:ENCODES]->(p2:Protein)
+        WITH count(p2) as count2, 'BRCA1' as entity2, count1, entity1
+        RETURN entity1, count1, entity2, count2
+
+        2. Compare categories/groups:
+        MATCH (d1:Disease {{category: 'cardiovascular'}})<-[:TREATS]-(dr1:Drug)
+        WITH count(DISTINCT dr1) as drugs1, count(DISTINCT d1) as diseases1
+        MATCH (d2:Disease {{category: 'oncological'}})<-[:TREATS]-(dr2:Drug)
+        RETURN 'cardiovascular' as category1, drugs1, diseases1,
+            'oncological' as category2, count(DISTINCT dr2) as drugs2, count(DISTINCT d2) as diseases2
+
+        3. Compare properties of one entity:
+        MATCH (g:Gene {{gene_name: 'TP53'}})-[:ENCODES]->(p:Protein),
+            (g)-[:LINKED_TO]->(d:Disease)
+        RETURN g.gene_name, g.chromosome, g.expression_level,
+            count(DISTINCT p) as protein_count,
+            count(DISTINCT d) as disease_count
+
+        IMPORTANT:
+        - Return comparable metrics for both/all entities
+        - Use descriptive column names (entity1, count1, entity2, count2)
+        - Include entity names/identifiers in results
+        - Use DISTINCT when counting to avoid duplicates
+
+        Return ONLY the Cypher query."""
+
+            cypher_query = self._get_llm_response(comparison_prompt, max_tokens=300)
+
+            # Clean up markdown formatting
+            if cypher_query.startswith("```"):
+                cypher_query = "\n".join(
+                    line
+                    for line in cypher_query.split("\n")
+                    if not line.startswith("```") and not line.startswith("cypher")
+                ).strip()
+
+            state["cypher_query"] = cypher_query
+            return state
 
         # Build dynamic relationship guide from actual database schema
         # This replaces hardcoded relationship patterns with discovered relationships
@@ -409,7 +467,7 @@ Provide a clear, informative answer about biomedical concepts.""",
             if not results:
                 state["final_answer"] = "No statistical data found for that query."
                 return state
-            
+
             # Format aggregation results as a clear summary
             state["final_answer"] = self._get_llm_response(
                 f"""Format these statistical results into a clear, readable summary:
@@ -427,6 +485,44 @@ Provide a clear, informative answer about biomedical concepts.""",
                 max_tokens=300,
             )
             return state
+        # Comparative analysis questions need side-by-side formatting
+        if question_type == "comparative_analysis":
+            results = state.get("results", [])
+            if not results:
+                state["final_answer"] = "No comparison data found for that query."
+                return state
+
+            # Format comparison results with clear contrast
+            state["final_answer"] = self._get_llm_response(
+                f"""Format these comparison results into a clear side-by-side summary:
+
+    Question: {state['user_question']}
+    Results: {json.dumps(results, indent=2)}
+
+    Create a comparison summary that:
+    1. Clearly identifies what is being compared
+    2. Shows metrics side-by-side (use "vs" or "compared to")
+    3. Highlights key differences or similarities
+    4. Uses bullet points or tables for clarity
+
+    Example format:
+    "Here's the comparison of X vs Y:
+
+    **X:**
+    • Metric 1: value
+    • Metric 2: value
+
+    **Y:**
+    • Metric 1: value (+/- difference from X)
+    • Metric 2: value (+/- difference from X)
+
+    **Key findings:** X has more of A, but Y has higher B..."
+
+    Be specific and use actual numbers from the results.""",
+                max_tokens=350,
+            )
+            return state
+
         # Handle database-based answers using query results
         results = state.get("results", [])
         if not results:
@@ -436,7 +532,6 @@ Provide a clear, informative answer about biomedical concepts.""",
                 "genes, diseases, or drugs in our database."
             )
             return state
-        
 
         # Convert raw database results into natural language using LLM
         state["final_answer"] = self._get_llm_response(
