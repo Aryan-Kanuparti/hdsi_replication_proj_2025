@@ -309,45 +309,67 @@ Return a JSON list: ["term1", "term2"] or []"""
             entities = state.get("entities", [])
 
             # Build comparison-focused prompt
+        # Build relationship guide
+            relationship_guide = """
+        RELATIONSHIP SCHEMA (IMPORTANT - Use correct relationships):
+        - Gene -[:ENCODES]-> Protein
+        - Gene -[:LINKED_TO]-> Disease  
+        - Protein -[:ASSOCIATED_WITH]-> Disease
+        - Drug -[:TREATS]-> Disease
+        - Drug -[:TARGETS]-> Protein
+
+        PROPERTY NAMES (Use these exact names):
+        - Genes: gene_name, chromosome, function, expression_level
+        - Proteins: protein_name, gene_id, molecular_weight, structure_type
+        - Diseases: disease_name, category, prevalence, severity
+        - Drugs: drug_name, type, approval_status, mechanism
+        """
+
             comparison_prompt = f"""Create a Cypher query that compares entities side-by-side:
 
         Question: {state['user_question']}
         Entities to compare: {entities}
 
-        Database Schema:
-        Nodes: {', '.join(self.schema['node_labels'])}
-        Relationships: {', '.join(self.schema['relationship_types'])}
+        {relationship_guide}
 
         COMPARISON QUERY PATTERNS:
 
-        1. Compare counts for two specific entities:
-        MATCH (e1:Gene {{gene_name: 'TP53'}})-[:ENCODES]->(p1:Protein)
-        WITH count(p1) as count1, 'TP53' as entity1
-        MATCH (e2:Gene {{gene_name: 'BRCA1'}})-[:ENCODES]->(p2:Protein)
-        WITH count(p2) as count2, 'BRCA1' as entity2, count1, entity1
+        1. Compare two GENES by disease associations:
+        MATCH (g1:Gene {{gene_name: 'TP53'}})-[:LINKED_TO]->(d1:Disease)
+        WITH count(DISTINCT d1) as count1, 'TP53' as entity1
+        MATCH (g2:Gene {{gene_name: 'BRCA1'}})-[:LINKED_TO]->(d2:Disease)
+        WITH count(DISTINCT d2) as count2, 'BRCA1' as entity2, count1, entity1
         RETURN entity1, count1, entity2, count2
 
-        2. Compare categories/groups:
+        2. Compare two DRUGS by protein targets:
+        MATCH (dr1:Drug {{drug_name: 'Lisinopril'}})-[:TARGETS]->(p1:Protein)
+        WITH count(DISTINCT p1) as count1, 'Lisinopril' as entity1
+        MATCH (dr2:Drug {{drug_name: 'Metoprolol'}})-[:TARGETS]->(p2:Protein)
+        WITH count(DISTINCT p2) as count2, 'Metoprolol' as entity2, count1, entity1
+        RETURN entity1, count1, entity2, count2
+
+        3. Compare DISEASE CATEGORIES by treatment count:
         MATCH (d1:Disease {{category: 'cardiovascular'}})<-[:TREATS]-(dr1:Drug)
-        WITH count(DISTINCT dr1) as drugs1, count(DISTINCT d1) as diseases1
+        WITH count(DISTINCT dr1) as drugs1, count(DISTINCT d1) as diseases1, 'cardiovascular' as cat1
         MATCH (d2:Disease {{category: 'oncological'}})<-[:TREATS]-(dr2:Drug)
-        RETURN 'cardiovascular' as category1, drugs1, diseases1,
-            'oncological' as category2, count(DISTINCT dr2) as drugs2, count(DISTINCT d2) as diseases2
+        WITH count(DISTINCT dr2) as drugs2, count(DISTINCT d2) as diseases2, 'oncological' as cat2, drugs1, diseases1, cat1
+        RETURN cat1, drugs1, diseases1, cat2, drugs2, diseases2
 
-        3. Compare properties of one entity:
-        MATCH (g:Gene {{gene_name: 'TP53'}})-[:ENCODES]->(p:Protein),
-            (g)-[:LINKED_TO]->(d:Disease)
-        RETURN g.gene_name, g.chromosome, g.expression_level,
-            count(DISTINCT p) as protein_count,
-            count(DISTINCT d) as disease_count
+        4. Compare two PROTEINS by disease associations:
+        MATCH (p1:Protein {{protein_name: 'TP53'}})-[:ASSOCIATED_WITH]->(d1:Disease)
+        WITH count(DISTINCT d1) as count1, 'TP53' as entity1
+        MATCH (p2:Protein {{protein_name: 'BRCA1'}})-[:ASSOCIATED_WITH]->(d2:Disease)
+        WITH count(DISTINCT d2) as count2, 'BRCA1' as entity2, count1, entity1
+        RETURN entity1, count1, entity2, count2
 
-        IMPORTANT:
-        - Return comparable metrics for both/all entities
-        - Use descriptive column names (entity1, count1, entity2, count2)
-        - Include entity names/identifiers in results
-        - Use DISTINCT when counting to avoid duplicates
+        CRITICAL RULES:
+        - Gene-Disease: Use LINKED_TO (NOT ASSOCIATED_WITH)
+        - Protein-Disease: Use ASSOCIATED_WITH
+        - Use exact property names: gene_name, disease_name, drug_name, protein_name
+        - Always use DISTINCT when counting
+        - Return entity names and counts for comparison
 
-        Return ONLY the Cypher query."""
+        Return ONLY the Cypher query."""    
 
             cypher_query = self._get_llm_response(comparison_prompt, max_tokens=300)
 
