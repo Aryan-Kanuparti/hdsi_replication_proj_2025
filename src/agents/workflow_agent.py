@@ -135,15 +135,14 @@ class WorkflowAgent:
         workflow.add_node("generate", self.generate_query)
         workflow.add_node("execute", self.execute_query)
         workflow.add_node("format", self.format_answer)
-        workflow.add_node("justify", self.add_justification) 
+        workflow.add_node("justify", self.add_justification)
 
         workflow.add_edge("classify", "extract")
         workflow.add_edge("extract", "generate")
         workflow.add_edge("generate", "execute")
         workflow.add_edge("execute", "format")
         workflow.add_edge("format", "justify")  # NEW edge for justify
-        workflow.add_edge("justify", END) 
-        
+        workflow.add_edge("justify", END)
 
         workflow.set_entry_point("classify")
         return workflow.compile()
@@ -313,7 +312,7 @@ Return a JSON list: ["term1", "term2"] or []"""
             entities = state.get("entities", [])
 
             # Build comparison-focused prompt
-        # Build relationship guide
+            # Build relationship guide
             relationship_guide = """
         RELATIONSHIP SCHEMA (IMPORTANT - Use correct relationships):
         - Gene -[:ENCODES]-> Protein
@@ -373,7 +372,7 @@ Return a JSON list: ["term1", "term2"] or []"""
         - Always use DISTINCT when counting
         - Return entity names and counts for comparison
 
-        Return ONLY the Cypher query."""    
+        Return ONLY the Cypher query."""
 
             cypher_query = self._get_llm_response(comparison_prompt, max_tokens=300)
 
@@ -573,22 +572,20 @@ Make it concise and informative.""",
         )
         return state
 
-
-
     def add_justification(self, state: WorkflowState) -> WorkflowState:
         """Add reasoning explanation to help users understand the workflow.
-        
+
         Generates a 2-3 sentence explanation of:
         1. How the question was interpreted
         2. What database path was traversed
         3. Why the results answer the question
-        
+
         This increases transparency and helps students learn reasoning process.
         """
         # Skip justification if there was an error
         if state.get("error"):
             return state
-        
+
         # Build justification prompt
         justification_prompt = f"""Explain the reasoning behind this answer in 2-3 clear, concise sentences:
 
@@ -613,7 +610,7 @@ Keep it concise and educational - help the user understand your reasoning proces
         except Exception as e:
             # If justification fails, don't block the workflow
             state["justification"] = f"Unable to generate explanation: {str(e)}"
-        
+
         return state
 
     def answer_question(self, question: str) -> Dict[str, Any]:

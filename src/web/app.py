@@ -395,13 +395,15 @@ def main_interface(workflow_agent, graph_interface):
                     with st.expander("🔍 How did I arrive at this answer?"):
                         st.write("**My Reasoning:**")
                         st.write(result["justification"])
-                        
+
                         st.write("")
                         st.write("**Workflow Details:**")
                         st.write(f"• **Question Type:** {result['question_type']}")
-                        st.write(f"• **Entities Extracted:** {', '.join(result['entities']) if result['entities'] else 'None'}")
+                        st.write(
+                            f"• **Entities Extracted:** {', '.join(result['entities']) if result['entities'] else 'None'}"
+                        )
                         st.write(f"• **Results Found:** {result['results_count']}")
-                        
+
                         if result.get("cypher_query"):
                             st.write("")
                             st.write("**Generated Query:**")
