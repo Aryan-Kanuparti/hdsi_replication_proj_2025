@@ -25,6 +25,7 @@ class WorkflowState(TypedDict):
     results: Optional[List[Dict]]
     final_answer: Optional[str]
     error: Optional[str]
+    justification: Optional[str]
 
 
 class WorkflowAgent:
@@ -134,12 +135,15 @@ class WorkflowAgent:
         workflow.add_node("generate", self.generate_query)
         workflow.add_node("execute", self.execute_query)
         workflow.add_node("format", self.format_answer)
+        workflow.add_node("justify", self.add_justification) 
 
         workflow.add_edge("classify", "extract")
         workflow.add_edge("extract", "generate")
         workflow.add_edge("generate", "execute")
         workflow.add_edge("execute", "format")
-        workflow.add_edge("format", END)
+        workflow.add_edge("format", "justify")  # NEW edge for justify
+        workflow.add_edge("justify", END) 
+        
 
         workflow.set_entry_point("classify")
         return workflow.compile()
@@ -569,6 +573,49 @@ Make it concise and informative.""",
         )
         return state
 
+
+
+    def add_justification(self, state: WorkflowState) -> WorkflowState:
+        """Add reasoning explanation to help users understand the workflow.
+        
+        Generates a 2-3 sentence explanation of:
+        1. How the question was interpreted
+        2. What database path was traversed
+        3. Why the results answer the question
+        
+        This increases transparency and helps students learn reasoning process.
+        """
+        # Skip justification if there was an error
+        if state.get("error"):
+            return state
+        
+        # Build justification prompt
+        justification_prompt = f"""Explain the reasoning behind this answer in 2-3 clear, concise sentences:
+
+Question: {state['user_question']}
+Question Type: {state['question_type']}
+Extracted Entities: {state.get('entities', [])}
+Query Generated: {state.get('cypher_query', 'N/A')}
+Results Found: {len(state.get('results', []))} results
+
+Explain:
+1. How you interpreted the question type
+2. What database relationships you searched (e.g., Gene→Protein→Disease)
+3. Why these results answer the question
+
+Format: "I interpreted this as a [type] question about [topic]. I searched the database by traversing [relationships] and filtering for [constraints]. These results show [key finding] which answers the question."
+
+Keep it concise and educational - help the user understand your reasoning process."""
+
+        try:
+            justification = self._get_llm_response(justification_prompt, max_tokens=200)
+            state["justification"] = justification
+        except Exception as e:
+            # If justification fails, don't block the workflow
+            state["justification"] = f"Unable to generate explanation: {str(e)}"
+        
+        return state
+
     def answer_question(self, question: str) -> Dict[str, Any]:
         """Answer a biomedical question using the LangGraph workflow."""
 
@@ -580,6 +627,7 @@ Make it concise and informative.""",
             results=None,
             final_answer=None,
             error=None,
+            justification=None,
         )
 
         final_state = self.workflow.invoke(initial_state)
@@ -592,6 +640,7 @@ Make it concise and informative.""",
             "results_count": len(final_state.get("results", [])),
             "raw_results": final_state.get("results", [])[:3],
             "error": final_state.get("error"),
+            "justification": final_state.get("justification"),
         }
 
 

@@ -390,7 +390,22 @@ def main_interface(workflow_agent, graph_interface):
 
                 st.subheader("Final Answer")
                 st.info(result["answer"])
-
+                # show reasoning/justification
+                if result.get("justification"):
+                    with st.expander("🔍 How did I arrive at this answer?"):
+                        st.write("**My Reasoning:**")
+                        st.write(result["justification"])
+                        
+                        st.write("")
+                        st.write("**Workflow Details:**")
+                        st.write(f"• **Question Type:** {result['question_type']}")
+                        st.write(f"• **Entities Extracted:** {', '.join(result['entities']) if result['entities'] else 'None'}")
+                        st.write(f"• **Results Found:** {result['results_count']}")
+                        
+                        if result.get("cypher_query"):
+                            st.write("")
+                            st.write("**Generated Query:**")
+                            st.code(result["cypher_query"], language="cypher")
                 # Show raw results
                 if result.get("raw_results"):
                     with st.expander("View Raw Database Results (First 3)"):
