@@ -1,6 +1,7 @@
 # Helix Navigator
 
 **Learn LangGraph and Knowledge Graphs through Biomedical AI**
+**Enhancing Medical Education with LLM-Based Comparative Analysis**
 
 An interactive educational project that teaches modern AI development through hands-on biomedical applications. Build AI agents that answer complex questions about genes, proteins, diseases, and drugs using graph databases and multi-step AI workflows.
 
@@ -14,6 +15,20 @@ An interactive educational project that teaches modern AI development through ha
 - **Cypher Queries**: Query graph databases effectively
 - **AI Integration**: Combine language models with structured knowledge
 - **Biomedical Applications**: Apply AI to drug discovery and personalized medicine
+
+## Project Overview
+
+**Research Question:** Can LLM-based comparative analysis improve medical students' understanding of biomedical relationships and evidence-based decision making?
+
+**Key Features:**
+- 🔬 **Comparative Analysis** - Side-by-side entity comparisons ("Compare TP53 vs BRCA1")
+- 📊 **Statistical Aggregation** - Quantitative queries ("How many diseases per gene?")
+- 💡 **Answer Justification** - Transparent reasoning explanations
+- 🎯 **6-Step LangGraph Workflow** - Classify → Extract → Generate → Execute → Score → Justify
+
+**Dataset:** 500 genes, 661 proteins, 191 diseases, 350 drugs, 3,039 relationships
+
+---
 
 ## Quick Start
 
