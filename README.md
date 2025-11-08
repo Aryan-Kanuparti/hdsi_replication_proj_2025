@@ -98,26 +98,35 @@ pdm run lint            # Check quality
 ```
 ### Troubleshooting
 
-"Connection refused to Neo4j"
+### "Connection refused to Neo4j"
+- Check if Neo4j is running  
+  - Neo4j Desktop: Start your database  
+  - Docker: `docker ps` (should see neo4j container)  
+- Test connection
 
-# Check if Neo4j is running
-# Neo4j Desktop: Start your database
-# Docker: docker ps (should see neo4j container)
-# Test connection
+```bash
 curl http://localhost:7474
+```
+### "Authentication failed"
+- Verify password in `.env` matches Neo4j  
+- Default: `NEO4J_PASSWORD=your_password`
 
-"Authentication failed"
+### "No data found"
+- Reload data  
 
-# Verify password in .env matches Neo4j
-# Default: NEO4J_PASSWORD=your_password
-
-"No data found"
-
-# Reload data
+```bash
 pdm run load-data
-# Verify data loaded
-# In Neo4j Browser: MATCH (n) RETURN count(n)
-# Should return > 1700 nodes
+```
+- Verify data loaded  
+- In Neo4j Browser:  
+  ```
+  MATCH (n) RETURN count(n)
+  ```
+- Should return > 1700 nodes
+
+### "API key error"
+- Check Anthropic API key in `.env`  
+- Get key from: [https://console.anthropic.com/](https://console.anthropic.com/)
 
 **Full commands**: See [Reference Guide](docs/reference.md)
 
