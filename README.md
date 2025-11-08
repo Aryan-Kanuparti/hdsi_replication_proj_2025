@@ -133,5 +133,11 @@ pdm run load-data
 - **"What drugs target proteins with high confidence disease associations?"**
 - **"Which approved drugs target specific proteins?"**
 - **"Which genes are linked to multiple disease categories?"**
-- **"What proteins have causal associations with diseases?"** 
+- **"What proteins have causal associations with diseases?"**
+- **"How many diseases are in each category?"**
+- **"Count the number of proteins each gene encodes"**
+- **"What's the distribution of drug approval statuses?"**
+- **"Compare TP53 and BRCA1 gene disease associations"**
+- **"Compare cardiovascular vs oncological disease treatment coverage"**
+- **"Which has more protein isoforms: TP73 or TP63?"**
 
