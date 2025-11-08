@@ -1,7 +1,6 @@
 # Helix Navigator
 
-**Learn LangGraph and Knowledge Graphs through Biomedical AI**
-**Enhancing Medical Education with LLM-Based Comparative Analysis**
+**Learn LangGraph and Knowledge Graphs through Biomedical AI -- Enhancing Medical Education with LLM-Based Comparative Analysis**
 
 An interactive educational project that teaches modern AI development through hands-on biomedical applications. Build AI agents that answer complex questions about genes, proteins, diseases, and drugs using graph databases and multi-step AI workflows.
 
@@ -97,6 +96,28 @@ pdm run test            # Run tests (14 tests)
 pdm run format          # Format code
 pdm run lint            # Check quality
 ```
+### Troubleshooting
+
+"Connection refused to Neo4j"
+
+# Check if Neo4j is running
+# Neo4j Desktop: Start your database
+# Docker: docker ps (should see neo4j container)
+# Test connection
+curl http://localhost:7474
+
+"Authentication failed"
+
+# Verify password in .env matches Neo4j
+# Default: NEO4J_PASSWORD=your_password
+
+"No data found"
+
+# Reload data
+pdm run load-data
+# Verify data loaded
+# In Neo4j Browser: MATCH (n) RETURN count(n)
+# Should return > 1700 nodes
 
 **Full commands**: See [Reference Guide](docs/reference.md)
 
