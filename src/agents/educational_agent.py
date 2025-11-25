@@ -28,7 +28,7 @@ class EducationalEnhancement:
         limitations, next_questions, vocabulary, confidence
         """
         if not educational_mode:
-            return {"answer": state.get("final_answer", "")}
+            return {}
 
         print("[Educational Agent] Enhancing response...")
 

@@ -644,7 +644,8 @@ Keep it concise and educational - help the user understand your reasoning proces
 
         return state
 
-    def answer_question(self, question: str) -> Dict[str, Any]:
+    def answer_question(self, question: str, educational_mode: bool = True) -> Dict[str, Any]:
+
         """Answer a biomedical question using the LangGraph workflow."""
 
         initial_state = WorkflowState(
@@ -656,7 +657,7 @@ Keep it concise and educational - help the user understand your reasoning proces
             final_answer=None,
             error=None,
             justification=None,
-            educational_mode=True,  # ADD THIS LINE
+            educational_mode=educational_mode,
             educational_data=None,
         )
 
