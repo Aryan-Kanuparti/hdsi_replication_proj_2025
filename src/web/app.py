@@ -408,6 +408,14 @@ def main_interface(workflow_agent, graph_interface):
                             st.write("")
                             st.write("**Generated Query:**")
                             st.code(result["cypher_query"], language="cypher")
+                # After displaying the answer
+                if st.session_state.educational_mode and result.get('educational_data'):
+                    st.markdown("---")
+                    st.markdown("### 📖 Educational Features")
+                    display_educational_features(result['educational_data'])
+
+
+
                 # Show raw results
                 if result.get("raw_results"):
                     with st.expander("View Raw Database Results (First 3)"):
@@ -467,6 +475,72 @@ def main_interface(workflow_agent, graph_interface):
             else:
                 st.warning("Please enter a query!")
 
+
+
+
+def display_educational_features(edu_data: dict):
+    """Display educational enhancements in tabs"""
+    
+    if not edu_data:
+        return
+    
+    # Skill level badge
+    skill_level = edu_data.get('skill_level', 'beginner')
+    skill_emoji = {'beginner': '🟢', 'intermediate': '🟡', 'advanced': '🔴'}
+    st.caption(f"{skill_emoji.get(skill_level, '🟢')} {skill_level.title()} Level")
+    
+    # Create tabs
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "🔍 How I Got This",
+        "📚 Vocabulary",
+        "⚠️ Limitations",
+        "🎯 Next Steps"
+    ])
+    
+    with tab1:
+        # Decomposition
+        if edu_data.get('decomposition'):
+            st.markdown("**Question Breakdown:**")
+            for step in edu_data['decomposition']:
+                with st.expander(f"Step {step.get('step', '')}: {step.get('question', '')}"):
+                    st.write(f"**Purpose:** {step.get('purpose', '')}")
+                    st.write(f"**Result:** {step.get('result', '')}")
+        
+        # Justification
+        st.markdown("**My Reasoning:**")
+        st.info(edu_data.get('justification', 'No explanation available'))
+        
+        # Confidence
+        conf = edu_data.get('confidence', 50)
+        st.metric("Confidence", f"{conf}%")
+        st.progress(conf / 100)
+    
+    with tab2:
+        vocab = edu_data.get('vocabulary', {})
+        if vocab:
+            for term, definition in vocab.items():
+                st.markdown(f"**{term}:** {definition}")
+        else:
+            st.write("No technical terms to explain")
+    
+    with tab3:
+        limits = edu_data.get('limitations', [])
+        if limits:
+            for lim in limits:
+                st.write(f"• {lim}")
+        else:
+            st.write("No major limitations identified")
+    
+    with tab4:
+        next_q = edu_data.get('next_questions', [])
+        if next_q:
+            st.markdown("**Try these next:**")
+            for i, q in enumerate(next_q, 1):
+                if st.button(q, key=f"next_{i}_{hash(q)}"):
+                    st.session_state.user_question = q
+                    st.rerun()
+        else:
+            st.write("No suggestions")
 
 def main():
     # Initialize agents
