@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 from langgraph.graph import END, StateGraph
 
 from .graph_interface import GraphInterface
+from .educational_agent import EducationalEnhancement
+
 
 
 class WorkflowState(TypedDict):
@@ -26,6 +28,8 @@ class WorkflowState(TypedDict):
     final_answer: Optional[str]
     error: Optional[str]
     justification: Optional[str]
+    educational_mode: Optional[bool] 
+    educational_data: Optional[Dict] 
 
 
 class WorkflowAgent:
@@ -47,6 +51,9 @@ class WorkflowAgent:
         self.schema = self.graph_db.get_schema_info()
         self.property_values = self._get_key_property_values()
         self.workflow = self._create_workflow()
+        #for educational tab to be folded into workflow
+        self.educational_enhancer = EducationalEnhancement(self.anthropic)
+
 
     def _get_key_property_values(self) -> Dict[str, List[Any]]:
         """Get property values dynamically from all nodes and relationships.
@@ -136,13 +143,15 @@ class WorkflowAgent:
         workflow.add_node("execute", self.execute_query)
         workflow.add_node("format", self.format_answer)
         workflow.add_node("justify", self.add_justification)
+        workflow.add_node("educate", self.add_educational_layers)
 
         workflow.add_edge("classify", "extract")
         workflow.add_edge("extract", "generate")
         workflow.add_edge("generate", "execute")
         workflow.add_edge("execute", "format")
         workflow.add_edge("format", "justify")  # NEW edge for justify
-        workflow.add_edge("justify", END)
+        workflow.add_edge("justify", "educate")
+        workflow.add_edge("educate", END) 
 
         workflow.set_entry_point("classify")
         return workflow.compile()
@@ -613,6 +622,33 @@ Keep it concise and educational - help the user understand your reasoning proces
 
         return state
 
+
+    def add_educational_layers(self, state: WorkflowState) -> WorkflowState:
+        """Add pedagogical enhancements to response.
+        
+        Generates educational content including:
+        - Question difficulty classification
+        - Query decomposition for complex questions
+        - Step-by-step reasoning justification
+        - Vocabulary definitions
+        - Suggested follow-up questions
+        - Confidence assessment
+        """
+        educational_mode = state.get('educational_mode', True)
+        
+        try:
+            enhancements = self.educational_enhancer.enhance_response(
+                state, 
+                educational_mode
+            )
+            state['educational_data'] = enhancements
+        except Exception as e:
+            print(f"[Workflow] Educational enhancement failed: {e}")
+            state['educational_data'] = {}
+        
+        return state
+
+
     def answer_question(self, question: str) -> Dict[str, Any]:
         """Answer a biomedical question using the LangGraph workflow."""
 
@@ -625,6 +661,8 @@ Keep it concise and educational - help the user understand your reasoning proces
             final_answer=None,
             error=None,
             justification=None,
+            educational_mode=True,      # ADD THIS LINE
+            educational_data=None, 
         )
 
         final_state = self.workflow.invoke(initial_state)
@@ -638,6 +676,7 @@ Keep it concise and educational - help the user understand your reasoning proces
             "raw_results": final_state.get("results", [])[:3],
             "error": final_state.get("error"),
             "justification": final_state.get("justification"),
+            "educational_data": final_state.get("educational_data", {}),
         }
 
 
