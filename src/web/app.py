@@ -479,6 +479,21 @@ def main():
         "knowledge graphs"
     )
 
+
+    # Educational Mode Toggle (Sidebar)
+    st.sidebar.markdown("---")  # Separator
+    st.sidebar.markdown("## 🎓 Learning Mode")
+    educational_mode = st.sidebar.toggle(
+        "Enable Educational Features",
+        value=True,  # Default ON
+        help="Shows detailed explanations, query decomposition, and learning suggestions"
+    )
+
+    # Store in session state
+    if 'educational_mode' not in st.session_state:
+        st.session_state.educational_mode = educational_mode
+
+
     # Main interface
     main_interface(workflow_agent, graph_interface)
 
