@@ -26,9 +26,9 @@ An interactive educational project that teaches modern AI development through ha
 - 🎓 **Educational Mode (New)** – Toggle a dedicated *Learning Mode* that wraps every answer with pedagogical scaffolding: question difficulty level, step‑by‑step query decomposition, reasoning/justification, limitations, key vocabulary, and suggested follow‑up questions. Designed and implemented specifically to support medical students’ conceptual understanding and self‑directed learning.
 - 🌐 **Knowledge Graph Visualization (In Progress)** – After each query, render the relevant subgraph so learners can *see* how genes, proteins, diseases, and drugs are connected. This interactive graph view will highlight the entities and relationships actually used in the answer and is currently under active development.
 
-- 🔬 **Comparative Analysis** - Side-by-side entity comparisons ("Compare TP53 vs BRCA1")
-- 📊 **Statistical Aggregation** - Quantitative queries ("How many diseases per gene?")
-- 💡 **Answer Justification** - Transparent reasoning explanations
+- 🔬 **Comparative Analysis (New)** - Side-by-side entity comparisons ("Compare TP53 vs BRCA1")
+- 📊 **Statistical Aggregation (New)** - Quantitative queries ("How many diseases per gene?")
+- 💡 **Answer Justification (New)** - Transparent reasoning explanations
 - 🎯 **6-Step LangGraph Workflow** - Classify → Extract → Generate → Execute → Score → Justify
 
 **Dataset:** 500 genes, 661 proteins, 191 diseases, 350 drugs, 3,039 relationships
@@ -81,6 +81,7 @@ pdm run app
 **Key Files**:
 - `src/agents/workflow_agent.py` - Main LangGraph agent
 - `src/web/app.py` - Interactive Streamlit interface
+- `src/agents/educational_agent.py` - Educational Mode agent
 - `docs/` - Complete documentation
 
 ## Running the Application
