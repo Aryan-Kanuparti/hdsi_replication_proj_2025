@@ -40,13 +40,77 @@ st.set_page_config(
     page_title="Helix Navigator - Interactive Biomedical Learning Environment",
     page_icon="🔬",
     layout="wide",
-    theme={
-        "primaryColor": "#8B00FF",              # Purple
-        "backgroundColor": "#000000",           # Black  
-        "secondaryBackgroundColor": "#FF69B4",  # Hot Pink
-        "textColor": "#FFFFFF",                 # White
-    },
 )
+
+st.set_page_config(
+    page_title="Helix Navigator - Interactive Biomedical Learning Environment",
+    page_icon="🔬",
+    layout="wide",
+)
+
+# Custom CSS theme override
+st.markdown("""
+<style>
+    /* Main background */
+    .main {
+        background-color: #000000;
+    }
+    
+    /* Sidebar background */
+    .css-1d391kg {
+        background-color: #FF69B4;
+    }
+    
+    /* Primary buttons */
+    .stButton > button:first-child {
+        background-color: #8B00FF;
+        color: #FFFFFF;
+        border-radius: 0.5rem;
+    }
+    
+    /* Button hover */
+    .stButton > button:first-child:hover {
+        background-color: #A020F0;
+        color: #FFFFFF;
+    }
+    
+    /* Text color */
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6,
+    .stMarkdown p, .stMarkdown li, .stMarkdown td, .stMarkdown th {
+        color: #FFFFFF !important;
+    }
+    
+    /* Input focus */
+    .stTextInput > div > div > input:focus {
+        border-color: #8B00FF !important;
+        box-shadow: 0 0 0 0.2rem rgba(139, 0, 255, 0.25) !important;
+    }
+    
+    /* Selectbox */
+    .stSelectbox > div > div > select {
+        background-color: #FF69B4;
+        color: #FFFFFF;
+    }
+    
+    /* Cards/blocks */
+    .stAlert, .stInfo, .stSuccess, .stWarning, .stError {
+        background-color: rgba(255, 105, 180, 0.2);
+        border-color: #FF69B4;
+    }
+    
+    /* Dataframe */
+    .dataframe th {
+        background-color: #8B00FF !important;
+        color: #FFFFFF !important;
+    }
+    
+    .dataframe td {
+        background-color: #1a1a1a !important;
+        color: #FFFFFF !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 
 # Constants
 EXAMPLE_QUESTIONS = [
