@@ -36,7 +36,17 @@ from agents.workflow_agent import WorkflowAgent  # noqa: E402
 
 # Load environment variables and configure page
 load_dotenv()
-st.set_page_config(page_title="Helix Navigator", page_icon="🔬", layout="wide")
+st.set_page_config(
+    page_title="Helix Navigator - Interactive Biomedical Learning Environment",
+    page_icon="🔬",
+    layout="wide",
+    theme={
+        "primaryColor": "#8B00FF",              # Purple
+        "backgroundColor": "#000000",           # Black  
+        "secondaryBackgroundColor": "#FF69B4",  # Hot Pink
+        "textColor": "#FFFFFF",                 # White
+    },
+)
 
 # Constants
 EXAMPLE_QUESTIONS = [
@@ -547,7 +557,7 @@ def display_educational_features(edu_data: dict):
     with tab4:
         next_q = edu_data.get("next_questions", [])
         if next_q:
-            st.markdown("**Try these next:**")
+            st.markdown("**Explore these follow up questions on your own:**")
             for i, q in enumerate(next_q, 1):
                 if st.button(q, key=f"next_{i}_{hash(q)}"):
                     st.session_state.user_question = q
@@ -561,10 +571,10 @@ def main():
     workflow_agent, graph_interface = initialize_agent()
 
     # Header
-    st.title("Helix Navigator")
+    st.title("Helix Navigator - Interactive Biomedical Learning Environment ")
     st.markdown(
         "Interactive biomedical AI discovery platform powered by LangGraph & "
-        "knowledge graphs"
+        "knowledge graphs and augmented for students with several educational features!"
     )
 
     # Educational Mode Toggle (Sidebar)

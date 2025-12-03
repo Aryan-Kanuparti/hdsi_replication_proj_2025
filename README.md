@@ -1,8 +1,8 @@
-# Helix Navigator
+# Helix Navigator - Interactive Biomedical Learning Environment
 
-**Learn LangGraph and Knowledge Graphs through Biomedical AI -- Enhancing Medical Education with LLM-Based Comparative Analysis**
+**Learn LangGraph and Knowledge Graphs through Biomedical AI -- Enhancing Medical Education with LLM-Based Learning Tool**
 
-An interactive educational project that teaches modern AI development through hands-on biomedical applications. Build AI agents that answer complex questions about genes, proteins, diseases, and drugs using graph databases and multi-step AI workflows.
+An interactive educational project that teaches modern AI development through hands-on biomedical applications. Build AI agents that answer complex questions about genes, proteins, diseases, and drugs using graph databases and multi-step AI workflows. This educational tool was built over the existing Helix Navigator workflow.
 
 *Navigate: [Getting Started](docs/getting-started.md) | [Foundations Guide](docs/foundations-and-background.md) | [Reference](docs/reference.md) | [Technical Guide](docs/technical-guide.md)*
 
@@ -19,7 +19,7 @@ An interactive educational project that teaches modern AI development through ha
 
 **Research Question:** Can LLM-based comparative analysis improve medical students' understanding of biomedical relationships and evidence-based decision making?
 
-**Key Features:**
+**Key Added Features:**
 
 **Learning & Visualization Features**
 
