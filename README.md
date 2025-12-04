@@ -1,4 +1,4 @@
-# Helix Navigator - Interactive Biomedical Learning Environment
+# Helix Navigator - Enhancing Biomedical Education with an LLM-Based Knowledge Graph Approach
 
 **Learn LangGraph and Knowledge Graphs through Biomedical AI -- Enhancing Medical Education with LLM-Based Learning Tool**
 
