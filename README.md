@@ -70,12 +70,54 @@ pdm run app
 ## Project Structure
 
 ```
-├── src/agents/              # AI agent implementations
-├── src/web/app.py          # Interactive Streamlit interface
-├── docs/                   # Documentation and tutorials
-├── data/                   # Biomedical datasets
-├── scripts/                # Data loading utilities
-└── tests/                  # Test suite
+├── LICENSE
+├── README.md
+├── pyproject.toml
+├── pdm.lock
+├── .env.example
+├── .gitignore
+│
+├── data/
+│   ├── raw/
+│   │   ├── genes.csv
+│   │   ├── proteins.csv
+│   │   ├── diseases.csv
+│   │   ├── drugs.csv
+│   │   └── relationships.csv
+│   └── processed/
+│       └── graph_nodes_edges.parquet
+│
+├── docs/
+│   ├── foundations.md
+│   ├── reference.md
+│   └──  technical_guide.md
+|
+│
+├── scripts/
+│   ├── load_data.py           # Build Neo4j graph from CSVs
+│   └──seed_example_questions.py
+│
+├── src/
+│   ├── agents/
+│   │   ├── __init__.py
+│   │   ├── workflow_agent.py        # Main LangGraph workflow: Classify → Extract → Generate → Execute → Format → Justify → Educate
+│   │   ├── educational_agent.py     # Educational Mode: difficulty, decomposition, vocab, limitations, follow-ups 
+│   │   ├── graph_interface.py       #Simplified wrapper for Neo4j interactions with built-in security and error handling
+│   │   └── utils.py                 # Shared helpers for prompts, parsing, and state
+│   │
+│   │
+│   ├── web/
+│   │   ├── __init__.py
+│   │   └── app.py                   # Streamlit UI, mode toggle, example questions, results & educational toggle
+│   │
+│   ├── .env             # personal environment/config management (API keys, Neo4j URI, etc.)
+│   
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_graph_interface.py
+│   ├── test_cypher_generation.py
+│   └──  test_workflow_agent.py
 ```
 
 **Key Files**:
@@ -85,6 +127,8 @@ pdm run app
 - `docs/` - Complete documentation
 
 ## Running the Application
+
+Go to the top and follow the [Getting Started](docs/getting-started.md) for installation steps.
 
 ### Basic Usage
 ```bash
