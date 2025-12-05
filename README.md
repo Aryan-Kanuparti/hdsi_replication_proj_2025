@@ -104,10 +104,10 @@ pdm run app
 │   │
 │   │
 │   ├── web/
-│   │   ├── __init__.py
-│   │   └── app.py                   # Streamlit UI, mode toggle, example questions, results & educational toggle
-│   │
-│   ├── .env             # personal environment/config management (API keys, Neo4j URI, etc.)
+│   ├── __init__.py
+│   └── app.py                   # Streamlit UI, mode toggle, example questions, results & educational toggle
+│  
+├── .env             # personal environment/config management (API keys, Neo4j URI, etc.)
 │   
 │
 ├── tests/
@@ -182,6 +182,7 @@ pdm run load-data
 
 **WorkflowAgent** - LangGraph implementation with transparent processing for learning core LangGraph concepts through biomedical applications
 
+**EducationalAgent** – LangGraph-powered teaching agent that layers difficulty tagging, query decomposition, confidence scoring, vocabulary explanations, limitations, and follow-up questions on top of WorkflowAgent, turning each biomedical query into a guided learning experience.
 ## Example Questions
 
 - **"Which drugs have high efficacy for treating diseases?"**
