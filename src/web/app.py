@@ -49,7 +49,8 @@ st.set_page_config(
 )
 
 # Custom CSS theme override
-st.markdown("""
+st.markdown(
+    """
 <style>
     /* Main background */
     .main {
@@ -109,7 +110,9 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 
 # Constants
@@ -444,7 +447,7 @@ def main_interface(workflow_agent, graph_interface):
         if st.button("Run Workflow Agent", type="primary"):
             if question_input:
                 with st.spinner("Running agent workflow..."):
-                    educational_mode = st.session_state.get('educational_mode', True)
+                    educational_mode = st.session_state.get("educational_mode", True)
                     result = workflow_agent.answer_question(question_input)
 
                 st.success("Workflow Complete!")
@@ -580,27 +583,30 @@ def display_educational_features(edu_data: dict):
         st.markdown("**My Reasoning:**")
         st.info(edu_data.get("justification", "No explanation available"))
 
-    
         # Confidence
-        conf = edu_data.get('confidence', 50)
+        conf = edu_data.get("confidence", 50)
         st.markdown("**Answer Confidence:**")
         st.progress(conf / 100)
         st.metric("Confidence Score", f"{conf}%")
 
         # Explain what confidence means
         if conf >= 80:
-            st.caption("🟢 High confidence - Query returned results with clear entity matches")
+            st.caption(
+                "🟢 High confidence - Query returned results with clear entity matches"
+            )
         elif conf >= 60:
             st.caption("🟡 Moderate confidence - Results found but may need refinement")
         else:
             st.caption("🔴 Low confidence - Limited results or errors encountered")
 
-        st.info("""
+        st.info(
+            """
         **What does this score mean?**
         - Based on: number of results found, entity extraction success, and query type
         - Higher score = more database evidence supporting the answer
         - Lower score = answer may be incomplete or speculative
-        """)
+        """
+        )
 
     with tab2:
         vocab = edu_data.get("vocabulary", {})
@@ -652,7 +658,6 @@ def main():
 
     # Store in session state
     st.session_state.educational_mode = educational_mode
-
 
     # Main interface
     main_interface(workflow_agent, graph_interface)

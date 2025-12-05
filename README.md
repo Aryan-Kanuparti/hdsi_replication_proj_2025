@@ -17,15 +17,13 @@ An interactive educational project that teaches modern AI development through ha
 
 ## Project Overview
 
-**Research Question:** Can LLM-based comparative analysis improve medical students' understanding of biomedical relationships and evidence-based decision making?
+**Research Question:** Can LLM-based knowledge graph systems improve medical students' understanding of biomedical relationships and evidence-based decision making?
 
 **Key Added Features:**
 
 **Learning & Visualization Features**
 
 - 🎓 **Educational Mode (New)** – Toggle a dedicated *Learning Mode* that wraps every answer with pedagogical scaffolding: question difficulty level, step‑by‑step query decomposition, reasoning/justification, limitations, key vocabulary, and suggested follow‑up questions. Designed and implemented specifically to support medical students’ conceptual understanding and self‑directed learning.
-- 🌐 **Knowledge Graph Visualization (In Progress)** – After each query, render the relevant subgraph so learners can *see* how genes, proteins, diseases, and drugs are connected. This interactive graph view will highlight the entities and relationships actually used in the answer and is currently under active development.
-
 - 🔬 **Comparative Analysis (New)** - Side-by-side entity comparisons ("Compare TP53 vs BRCA1")
 - 📊 **Statistical Aggregation (New)** - Quantitative queries ("How many diseases per gene?")
 - 💡 **Answer Justification (New)** - Transparent reasoning explanations
@@ -78,31 +76,30 @@ pdm run app
 ├── .gitignore
 │
 ├── data/
-│   ├── raw/
-│   │   ├── genes.csv
-│   │   ├── proteins.csv
-│   │   ├── diseases.csv
-│   │   ├── drugs.csv
-│   │   └── relationships.csv
-│   └── processed/
-│       └── graph_nodes_edges.parquet
+│   ├── genes.csv
+│   ├── proteins.csv
+│   ├── diseases.csv
+│   ├── drugs.csv
+│   └── relationships.csv
+│   
 │
 ├── docs/
-│   ├── foundations.md
+│   ├── foundations-and-background.md
 │   ├── reference.md
+│   ├── getting-started.md
 │   └──  technical_guide.md
 |
 │
 ├── scripts/
 │   ├── load_data.py           # Build Neo4j graph from CSVs
-│   └──seed_example_questions.py
+│   └── quickstart.py
 │
 ├── src/
 │   ├── agents/
 │   │   ├── __init__.py
-│   │   ├── workflow_agent.py        # Main LangGraph workflow: Classify → Extract → Generate → Execute → Format → Justify → Educate
-│   │   ├── educational_agent.py     # Educational Mode: difficulty, decomposition, vocab, limitations, follow-ups 
-│   │   ├── graph_interface.py       #Simplified wrapper for Neo4j interactions with built-in security and error handling
+│   │   ├── workflow_agent.py        # Main LangGraph workflow - edited to integrate educational mode etc.
+│   │   ├── educational_agent.py     # Educational Mode: difficulty, decomposition, vocab,,
+│   │   ├── graph_interface.py       #Simplified wrapper for Neo4j interactions with error handling
 │   │   └── utils.py                 # Shared helpers for prompts, parsing, and state
 │   │
 │   │
